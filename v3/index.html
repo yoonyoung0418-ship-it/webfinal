@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RTB 3</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Noto+Sans+KR:wght@300;500;700;900&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Share Tech Mono', 'Noto Sans KR', sans-serif;
+      word-break: keep-all;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100vh;
+      overflow-y: auto;
+
+      background-color: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #220505;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ff3b30;
+    }
+
+
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 0, 0, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .vignette-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: radial-gradient(circle, transparent 30%, rgba(60, 0, 0, 0.9) 85%);
+      pointer-events: none;
+    }
+
+    .back-btn {
+      margin-top: 24px;
+
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #ff3b30;
+
+      border: 2px solid rgba(255, 59, 48, 0.75);
+
+      text-decoration: none;
+      font-family: 'Noto Sans KR', 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+
+      font-weight: 700;
+
+      letter-spacing: 1.5px;
+      padding: 12px 36px;
+
+      border-radius: 30px;
+
+      background: rgba(30, 0, 0, 0.6);
+
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 15px rgba(255, 59, 48, 0.25);
+
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      cursor: none !important;
+    }
+
+    .back-btn span {
+      color: #ffffff;
+      transition: color 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #ff3b30 !important;
+
+      color: #ffffff !important;
+      border-color: #ff3b30 !important;
+      box-shadow: 0 0 25px rgba(255, 59, 48, 0.7) !important;
+      transform: translateY(-2px);
+
+    }
+
+    .section {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 5vw;
+      background-color: transparent;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #ffffff;
+      font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
+    }
+
+
+
+    .gradient-red {
+      background: linear-gradient(135deg, #ff3b30, #ff7b70);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .text-red {
+      color: #ff3b30;
+      text-shadow: 0 0 10px rgba(255, 59, 48, 0.4);
+    }
+
+    .sim-container {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    #simulator .container {
+      max-width: 1200px;
+    }
+
+    .device-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 320px;
+      height: 560px;
+      border-radius: 36px;
+      border: 8px solid #222222;
+      background-color: #050101;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 59, 48, 0.15);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-notch {
+      width: 120px;
+      height: 20px;
+      background-color: #222222;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    .phone-content {
+      flex: 1;
+      padding: 24px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      color: #ffffff;
+    }
+
+    .phone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+    }
+
+    .phone-logo {
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: -0.02em;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .phone-menu span {
+      height: 2px;
+      background-color: #ffffff;
+      width: 16px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .ad-slot-wrapper {
+      background: rgba(255, 59, 48, 0.02);
+      border: 2px dashed rgba(255, 59, 48, 0.3);
+      border-radius: 12px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .ad-slot-wrapper.bidding {
+      border-color: #ff3b30;
+      background: rgba(255, 59, 48, 0.05);
+      box-shadow: 0 0 20px rgba(255, 59, 48, 0.2);
+    }
+
+    .ad-slot-wrapper.active {
+      border-color: #ffffff;
+      background: rgba(255, 59, 48, 0.08);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .ad-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #888888;
+      text-align: center;
+      font-size: 0.8rem;
+      z-index: 1;
+    }
+
+    .ad-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 2;
+    }
+
+    .ad-image.show {
+      opacity: 1;
+    }
+
+    .ad-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #ff3b30;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      z-index: 3;
+      font-family: 'Share Tech Mono', sans-serif;
+    }
+
+    .ad-winner-tag {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: #ff3b30;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(255, 59, 48, 0.4);
+      transform: translateY(30px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 4;
+      font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
+    }
+
+    .ad-winner-tag.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .phone-article {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .art-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #ff3b30;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .art-title {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .art-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .art-line {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      width: 100%;
+    }
+
+    .art-line.short {
+      width: 60%;
+    }
+
+    .sim-dashboard.glass-card {
+      background: rgba(18, 3, 3, 0.85);
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 59, 48, 0.05);
+      color: #ffffff;
+      text-align: left;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .sim-dashboard.glass-card:hover {
+      border-color: #ff3b30;
+      box-shadow: 0 15px 40px rgba(255, 59, 48, 0.2), inset 0 0 25px rgba(255, 59, 48, 0.05);
+    }
+
+    .sim-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .metric-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 59, 48, 0.15);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+      font-family: 'Share Tech Mono', sans-serif;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
+
+    .user-profile-tag {
+      background: rgba(255, 59, 48, 0.05);
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .user-profile-tag strong {
+      color: #ff3b30;
+    }
+
+
+    .cta-btn-small {
+      background: #ff3b30;
+      border: 1px solid #ff3b30;
+      color: #ffffff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-family: 'Noto Sans KR', sans-serif;
+      box-shadow: 0 0 8px rgba(255, 59, 48, 0.3);
+    }
+
+    .cta-btn-small:hover {
+      background: #ff5e54;
+      border-color: #ff5e54;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(255, 59, 48, 0.6);
+    }
+
+    .sim-network-box {
+      background: #000000;
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      border-radius: 16px;
+      height: 280px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 15px rgba(255, 59, 48, 0.05);
+    }
+
+    .network-svg {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .connection-line {
+      stroke: #331111;
+      stroke-width: 2;
+      transition: all 0.5s ease;
+    }
+
+    .connection-line.active-blue {
+      stroke: #ff3b30;
+      filter: drop-shadow(0 0 8px rgba(255, 59, 48, 0.8));
+      stroke-width: 3;
+    }
+
+    .connection-line.active-lime {
+      stroke: #ffffff;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+      stroke-width: 3;
+    }
+
+    .flow-pulse {
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 10, 150;
+      stroke-dashoffset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .flow-pulse.active {
+      opacity: 1;
+      animation: flow 1.2s infinite linear;
+    }
+
+    .flow-pulse.pulse-blue {
+      stroke: #ff3b30;
+    }
+
+    .network-svg .flow-pulse.pulse-lime {
+      stroke: #ffffff;
+    }
+
+    @keyframes flow {
+      to {
+        stroke-dashoffset: -150;
+      }
+    }
+
+    .net-node {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      background: #110303;
+      border: 2px solid rgba(255, 59, 48, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.95rem;
+      z-index: 5;
+      transition: all 0.3s ease;
+    }
+
+    .net-node.active {
+      border-color: #ff3b30;
+      color: #ffffff;
+      background: #660000;
+      box-shadow: 0 0 15px rgba(255, 59, 48, 0.6);
+    }
+
+    .net-node.active.lime {
+      border-color: #ffffff;
+      color: #ffffff;
+      background: #ff3b30;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+
+    .node-label {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      white-space: nowrap;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.4);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .net-node.active .node-label {
+      color: #ffffff;
+    }
+
+    .sim-console {
+      background: #000000;
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      border-radius: 12px;
+      height: 150px;
+      padding: 16px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .console-line {
+      line-height: 1.4;
+      padding-left: 8px;
+    }
+
+    .console-line.system {
+      color: #ff3b30;
+      font-weight: 700;
+    }
+
+    .console-line.info {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .console-line.bid {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .console-line.win {
+      color: #ffffff;
+      background: rgba(255, 59, 48, 0.2);
+      font-weight: bold;
+      border-left: 4px solid #ff3b30;
+    }
+
+    .sim-btn {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(160, 0, 0, 0.95), rgba(210, 0, 0, 0.95));
+      color: #ffffff;
+      border: 2px solid #ff3b30;
+      padding: 18px;
+      border-radius: 12px;
+      font-weight: 500;
+
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 59, 48, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .sim-btn:hover {
+      background: #ff3b30;
+      box-shadow: 0 0 35px #ff3b30;
+      transform: translateY(-2px);
+    }
+
+    .sim-btn:active {
+      transform: scale(0.98);
+    }
+
+    .sim-btn:disabled {
+      background: #1a0808 !important;
+      color: #555555 !important;
+      border-color: #331111 !important;
+      box-shadow: none !important;
+      cursor: not-allowed;
+    }
+
+
+    * {
+      cursor: none !important;
+    }
+
+    #custom-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .cursor-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #ff3b30;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px #ff3b30;
+      pointer-events: none;
+      transition: width 0.2s, height 0.2s, background-color 0.2s;
+    }
+
+    .cursor-ring {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid rgba(255, 59, 48, 0.6);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(255, 59, 48, 0.2);
+      transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+        height 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+        border-color 0.3s,
+        background-color 0.3s;
+    }
+
+    #custom-cursor.hover .cursor-dot {
+      background: #ffffff;
+      width: 4px;
+      height: 4px;
+      box-shadow: 0 0 8px #ffffff;
+    }
+
+    #custom-cursor.hover .cursor-ring {
+      width: 38px;
+      height: 38px;
+      border-color: #ff3b30;
+      background-color: rgba(255, 59, 48, 0.15);
+      box-shadow: 0 0 15px rgba(255, 59, 48, 0.5);
+    }
+
+
+    .user-profile-tag {
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      border-width: 2px !important;
+    }
+
+    .user-profile-tag.theme-white {
+      background: rgba(255, 255, 255, 0.14) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.25), inset 0 0 10px rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .user-profile-tag.theme-white strong {
+      color: #ffffff !important;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    }
+
+    .user-profile-tag.theme-blue {
+      background: rgba(0, 210, 255, 0.16) !important;
+      border-color: rgba(0, 210, 255, 0.6) !important;
+      box-shadow: 0 0 18px rgba(0, 210, 255, 0.35), inset 0 0 10px rgba(0, 210, 255, 0.1) !important;
+    }
+
+    .user-profile-tag.theme-blue strong {
+      color: #00d2ff !important;
+      text-shadow: 0 0 10px rgba(0, 210, 255, 0.7);
+    }
+
+    .user-profile-tag.theme-green {
+      background: rgba(57, 255, 20, 0.12) !important;
+      border-color: rgba(57, 255, 20, 0.5) !important;
+      box-shadow: 0 0 18px rgba(57, 255, 20, 0.3), inset 0 0 10px rgba(57, 255, 20, 0.08) !important;
+    }
+
+    .user-profile-tag.theme-green strong {
+      color: #39ff14 !important;
+      text-shadow: 0 0 10px rgba(57, 255, 20, 0.7);
+    }
+
+
+    #btnRandomProfile {
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+
+    #btnRandomProfile.theme-white {
+      background: linear-gradient(135deg, rgba(60, 60, 60, 0.95), rgba(90, 90, 90, 0.95)) !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.25) !important;
+      color: #ffffff !important;
+    }
+
+    #btnRandomProfile.theme-white:hover {
+      background: #ffffff !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 35px #ffffff !important;
+      color: #000000 !important;
+    }
+
+
+    #btnRandomProfile.theme-blue {
+      background: linear-gradient(135deg, rgba(0, 60, 110, 0.95), rgba(0, 100, 160, 0.95)) !important;
+      border-color: #00d2ff !important;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.4) !important;
+      color: #ffffff !important;
+    }
+
+    #btnRandomProfile.theme-blue:hover {
+      background: #00d2ff !important;
+      border-color: #00d2ff !important;
+      box-shadow: 0 0 35px #00d2ff !important;
+      color: #000000 !important;
+    }
+
+
+    #btnRandomProfile.theme-green {
+      background: linear-gradient(135deg, rgba(0, 80, 20, 0.95), rgba(0, 120, 40, 0.95)) !important;
+      border-color: #39ff14 !important;
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.35) !important;
+      color: #ffffff !important;
+    }
+
+    #btnRandomProfile.theme-green:hover {
+      background: #39ff14 !important;
+      border-color: #39ff14 !important;
+      box-shadow: 0 0 35px #39ff14 !important;
+      color: #000000 !important;
+    }
+
+
+    .net-node.active.theme-white {
+      border-color: #ffffff !important;
+      color: #ffffff !important;
+      background: #222222 !important;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .net-node.active.theme-white .node-label {
+      color: #ffffff !important;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .net-node.active.theme-blue {
+      border-color: #00d2ff !important;
+      color: #ffffff !important;
+      background: #001b30 !important;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.8) !important;
+    }
+
+    .net-node.active.theme-blue .node-label {
+      color: #00d2ff !important;
+      text-shadow: 0 0 5px rgba(0, 210, 255, 0.8) !important;
+    }
+
+    .net-node.active.theme-green {
+      border-color: #39ff14 !important;
+      color: #ffffff !important;
+      background: #052800 !important;
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.8) !important;
+    }
+
+    .net-node.active.theme-green .node-label {
+      color: #39ff14 !important;
+      text-shadow: 0 0 5px rgba(57, 255, 20, 0.8) !important;
+    }
+
+
+    .connection-line.active-white {
+      stroke: #ffffff !important;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
+      stroke-width: 3 !important;
+    }
+
+    .connection-line.active-blue-theme {
+      stroke: #00d2ff !important;
+      filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.9)) !important;
+      stroke-width: 3 !important;
+    }
+
+    .connection-line.active-green-theme {
+      stroke: #39ff14 !important;
+      filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.9)) !important;
+      stroke-width: 3 !important;
+    }
+
+
+    .flow-pulse.active.pulse-white {
+      stroke: #ffffff !important;
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) !important;
+    }
+
+    .flow-pulse.active.pulse-blue-theme {
+      stroke: #00d2ff !important;
+      filter: drop-shadow(0 0 4px rgba(0, 210, 255, 0.9)) !important;
+    }
+
+    .flow-pulse.active.pulse-green-theme {
+      stroke: #39ff14 !important;
+      filter: drop-shadow(0 0 4px rgba(57, 255, 20, 0.9)) !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="custom-cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+  </div>
+
+
+  <div class="grid-overlay"></div>
+  <div class="vignette-overlay"></div>
+
+
+
+  <section id="simulator" class="section">
+    <div class="container">
+      <div class="sim-container">
+        <div class="device-preview">
+
+          <div class="sim-guide-panel"
+            style="width: 100%; max-width: 320px; background: rgba(255, 59, 48, 0.04); border: 1.5px solid rgba(255, 59, 48, 0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px; font-family: 'Noto Sans KR', sans-serif; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.05); text-align: left;">
+            <ul
+              style="list-style-type: none; font-size: 0.75rem; color: rgba(255, 255, 255, 0.75); padding: 0; line-height: 1.6; margin: 0; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; gap: 8px;">
+              <li><strong style="color: #ffffff;">프로필 바꾸기</strong>로 가상 방문자 프로필을 변경합니다.</li>
+              <li><strong style="color: #ffffff;">시뮬레이션 시작</strong>을 눌러 0.1초 만에 완료되는 광고 경매 과정을 관찰합니다.</li>
+            </ul>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-content">
+              <div class="phone-header">
+                <span class="phone-logo">NEW TECH TODAY</span>
+                <div class="phone-menu">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="ad-slot-wrapper" id="adSlot">
+                <span class="ad-badge">ADVERTISEMENT</span>
+                <span class="ad-winner-tag" id="adWinnerTag">WINNER: Nike ($3.45)</span>
+
+                <div class="ad-placeholder" id="adPlaceholder">
+                  <i data-lucide="sparkles" style="width: 28px; height: 28px; color: #ff3b30;"
+                    class="ad-icon-animation"></i>
+                  <p style="font-weight: 600; margin-top: 8px;">실시간 배너 지면</p>
+                  <p style="font-size: 0.7rem; max-width: 140px; margin-top: 4px;">시뮬레이션 시작 시 실시간 입찰 결과 광고가 게재됩니다.</p>
+                </div>
+
+                <img src="" alt="Winning Ad Banner" class="ad-image" id="adImg">
+              </div>
+
+              <div class="phone-article">
+                <span class="art-tag">AI & TECHNOLOGY</span>
+                <h4 class="art-title">웹 브라우징의 숨겨진 보이지 않는 거래들</h4>
+                <div class="art-body">
+                  <div class="art-line"></div>
+                  <div class="art-line"></div>
+                  <div class="art-line"></div>
+                  <div class="art-line short"></div>
+                </div>
+              </div>
+
+              <div class="phone-article">
+                <span class="art-tag">INSIGHTS</span>
+                <h4 class="art-title">0.1초의 데이터 가치가 창출하는 디지털 비즈니스</h4>
+                <div class="art-body">
+                  <div class="art-line"></div>
+                  <div class="art-line"></div>
+                  <div class="art-line short"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a href="../v2/index.html#simulation-jump-btn-wrap" class="back-btn" title="이전 화면으로">
+            <i data-lucide="arrow-left" style="width: 22px; height: 22px;"></i>
+            <span>돌아가기</span>
+          </a>
+        </div>
+
+        <div class="sim-dashboard glass-card">
+          <div class="sim-metrics">
+            <div class="metric-box">
+              <div class="metric-value gradient-red" id="metricTimer">000.0ms</div>
+              <div class="metric-label">경매 진행 속도 (제한 100ms)</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-value" style="color: rgba(255, 255, 255, 0.4);" id="metricBidders">0</div>
+              <div class="metric-label">총 참여 DSP 입찰자</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-value text-red" id="metricWinnerPrice">$0.00</div>
+              <div class="metric-label">최종 낙찰 가격 (CPM)</div>
+            </div>
+          </div>
+
+          <div class="user-profile-tag">
+            <i data-lucide="shield-alert" style="color: #ffffff; width: 16px; height: 16px;"></i>
+            <span>가상 방문자 프로필: </span>
+            <span id="targetUserProfile">연령대: <strong>20대 후반</strong>, 주 사용 기기: <strong>모바일(iOS)</strong>, 관심사:
+              <strong>피트니스/러닝</strong></span>
+          </div>
+
+          <div class="sim-network-box">
+            <svg class="network-svg" id="networkSvg">
+              <line x1="10%" y1="46%" x2="40%" y2="46%" class="connection-line" id="line1" />
+              <line x1="40%" y1="46%" x2="70%" y2="46%" class="connection-line" id="line2" />
+
+              <line x1="70%" y1="46%" x2="90%" y2="16%" class="connection-line" id="lineDsp1" />
+              <line x1="70%" y1="46%" x2="90%" y2="46%" class="connection-line" id="lineDsp2" />
+              <line x1="70%" y1="46%" x2="90%" y2="76%" class="connection-line" id="lineDsp3" />
+
+              <line x1="10%" y1="46%" x2="40%" y2="46%" class="flow-pulse pulse-blue" id="pulseUserToSSP" />
+              <line x1="40%" y1="46%" x2="70%" y2="46%" class="flow-pulse pulse-lime" id="pulseSSPToExchange" />
+              <line x1="70%" y1="46%" x2="90%" y2="16%" class="flow-pulse pulse-white" id="pulseExchangeToDsp1" />
+              <line x1="70%" y1="46%" x2="90%" y2="46%" class="flow-pulse pulse-blue-theme" id="pulseExchangeToDsp2" />
+              <line x1="70%" y1="46%" x2="90%" y2="76%" class="flow-pulse pulse-green-theme" id="pulseExchangeToDsp3" />
+            </svg>
+
+            <div class="net-node" style="left: 10%; top: 46%;" id="nodeUser">
+              <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+              <div class="node-label">방문자</div>
+            </div>
+            <div class="net-node" style="left: 40%; top: 46%;" id="nodeSSP">
+              <i data-lucide="cloud-lightning" style="width: 18px; height: 18px;"></i>
+              <div class="node-label">SSP</div>
+            </div>
+            <div class="net-node" style="left: 70%; top: 46%;" id="nodeExchange">
+              <i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i>
+              <div class="node-label">Ad Exchange</div>
+            </div>
+
+            <div class="net-node" style="left: 90%; top: 16%;" id="nodeDsp1">
+              <span style="font-size: 0.65rem; font-weight: 800;">DSP 1</span>
+              <div class="node-label">스포츠웨어</div>
+            </div>
+            <div class="net-node" style="left: 90%; top: 46%;" id="nodeDsp2">
+              <span style="font-size: 0.65rem; font-weight: 800;">DSP 2</span>
+              <div class="node-label">글로벌 테크</div>
+            </div>
+            <div class="net-node" style="left: 90%; top: 76%;" id="nodeDsp3">
+              <span style="font-size: 0.65rem; font-weight: 800;">DSP 3</span>
+              <div class="node-label">식음료</div>
+            </div>
+          </div>
+
+          <div class="sim-console" id="simConsole">
+            <div class="console-line info">[SYSTEM] 실시간 경매 시뮬레이터 시스템이 정상 로드되었습니다.</div>
+            <div class="console-line info">[SYSTEM] '프로필 바꾸기'로 방문자 정보를 설정한 후 '시뮬레이션 시작' 버튼을 누르십시오.</div>
+          </div>
+
+          <div class="sim-controls" style="display: flex; gap: 16px; width: 100%;">
+            <button class="sim-btn" id="btnRandomProfile" style="flex: 1;">
+              <i data-lucide="refresh-cw" style="width: 20px; height: 20px;"></i>
+              <span>프로필 바꾸기</span>
+            </button>
+            <button class="sim-btn" id="btnStartSim" style="flex: 1;">
+              <i data-lucide="play-circle" style="width: 24px; height: 24px;"></i>
+              <span>시뮬레이션 시작</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+
+    function getOS() {
+      const userAgent = window.navigator.userAgent;
+      const platform = window.navigator.platform;
+      const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+      const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+      const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+
+      let os = 'Unknown OS';
+      if (macosPlatforms.indexOf(platform) !== -1) {
+        os = 'macOS';
+      } else if (iosPlatforms.indexOf(platform) !== -1) {
+        os = 'iOS';
+      } else if (windowsPlatforms.indexOf(platform) !== -1) {
+        os = 'Windows';
+      } else if (/Android/.test(userAgent)) {
+        os = 'Android';
+      } else if (/Linux/.test(platform)) {
+        os = 'Linux';
+      }
+      return os;
+    }
+
+
+    const profiles = [
+      { text: `연령대: <strong>20대 후반</strong>, 주 사용 기기: <strong>모바일(${getOS()})</strong>, 관심사: <strong>피트니스/러닝</strong>`, target: "스포츠웨어", colorClass: "theme-white" },
+      { text: `연령대: <strong>30대 중반</strong>, 주 사용 기기: <strong>데스크톱(${getOS()})</strong>, 관심사: <strong>글로벌 테크/가전</strong>`, target: "글로벌 테크", colorClass: "theme-blue" },
+      { text: `연령대: <strong>10대 후반</strong>, 주 사용 기기: <strong>모바일(${getOS()})</strong>, 관심사: <strong>유행 간식/식음료</strong>`, target: "식음료", colorClass: "theme-green" }
+    ];
+
+
+    const adResults = {
+      "스포츠웨어": { brand: "Nike Marathon", price: "$4.65", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80" },
+      "글로벌 테크": { brand: "Apple Cyber", price: "$5.80", img: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400&q=80" },
+      "식음료": { brand: "Monster Drink", price: "$3.15", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80" }
+    };
+
+    let currentProfileIndex = 0;
+
+
+    const btnStartSim = document.getElementById('btnStartSim');
+    const btnRandomProfile = document.getElementById('btnRandomProfile');
+    const targetUserProfile = document.getElementById('targetUserProfile');
+    const userProfileTag = document.querySelector('.user-profile-tag');
+    const metricTimer = document.getElementById('metricTimer');
+    const metricBidders = document.getElementById('metricBidders');
+    const metricWinnerPrice = document.getElementById('metricWinnerPrice');
+    const simConsole = document.getElementById('simConsole');
+
+
+    const adSlot = document.getElementById('adSlot');
+    const adPlaceholder = document.getElementById('adPlaceholder');
+    const adImg = document.getElementById('adImg');
+    const adWinnerTag = document.getElementById('adWinnerTag');
+
+
+    const nodes = {
+      user: document.getElementById('nodeUser'),
+      ssp: document.getElementById('nodeSSP'),
+      exchange: document.getElementById('nodeExchange'),
+      dsp1: document.getElementById('nodeDsp1'),
+      dsp2: document.getElementById('nodeDsp2'),
+      dsp3: document.getElementById('nodeDsp3')
+    };
+
+    const pulses = {
+      userToSsp: document.getElementById('pulseUserToSSP'),
+      sspToExchange: document.getElementById('pulseSSPToExchange'),
+      exchangeToDsp1: document.getElementById('pulseExchangeToDsp1'),
+      exchangeToDsp2: document.getElementById('pulseExchangeToDsp2'),
+      exchangeToDsp3: document.getElementById('pulseExchangeToDsp3')
+    };
+
+    const lines = {
+      l1: document.getElementById('line1'),
+      l2: document.getElementById('line2'),
+      dsp1: document.getElementById('lineDsp1'),
+      dsp2: document.getElementById('lineDsp2'),
+      dsp3: document.getElementById('lineDsp3')
+    };
+
+
+    function updateProfileUI() {
+      const profile = profiles[currentProfileIndex];
+      targetUserProfile.innerHTML = profile.text;
+
+
+      userProfileTag.classList.remove('theme-white', 'theme-blue', 'theme-green');
+      btnRandomProfile.classList.remove('theme-white', 'theme-blue', 'theme-green');
+
+
+      userProfileTag.classList.add(profile.colorClass);
+      btnRandomProfile.classList.add(profile.colorClass);
+
+
+      const icon = userProfileTag.querySelector('[data-lucide]') || userProfileTag.querySelector('svg') || userProfileTag.querySelector('.lucide');
+      if (icon) {
+        if (profile.colorClass === 'theme-white') {
+          icon.style.color = '#ffffff';
+        } else if (profile.colorClass === 'theme-blue') {
+          icon.style.color = '#00d2ff';
+        } else if (profile.colorClass === 'theme-green') {
+          icon.style.color = '#39ff14';
+        }
+      }
+    }
+
+
+    updateProfileUI();
+
+
+    function logToConsole(text, type = 'info') {
+      const line = document.createElement('div');
+      line.className = `console-line ${type}`;
+      line.innerText = text;
+      simConsole.appendChild(line);
+      simConsole.scrollTop = simConsole.scrollHeight;
+    }
+
+
+    function resetSimulationState() {
+      metricTimer.innerText = "000.0ms";
+      metricBidders.innerText = "0";
+      metricBidders.style.color = "rgba(255, 255, 255, 0.4)";
+      metricWinnerPrice.innerText = "$0.00";
+      adImg.classList.remove('show');
+      adWinnerTag.classList.remove('show');
+      adSlot.className = "ad-slot-wrapper";
+      adPlaceholder.style.opacity = "1";
+
+      Object.values(nodes).forEach(n => {
+        n.className = "net-node";
+      });
+      Object.values(pulses).forEach(p => {
+        p.classList.remove('active');
+      });
+      Object.values(lines).forEach(l => {
+        l.className = "connection-line";
+      });
+    }
+
+
+    btnRandomProfile.addEventListener('click', () => {
+      currentProfileIndex = (currentProfileIndex + 1) % profiles.length;
+      updateProfileUI();
+      resetSimulationState();
+      logToConsole(`[SYSTEM] 방문자 프로필 변동 -> 타겟 핵심 관심사: ${profiles[currentProfileIndex].target}`, 'system');
+    });
+
+
+    btnStartSim.addEventListener('click', () => {
+      btnStartSim.disabled = true;
+      btnRandomProfile.disabled = true;
+
+
+      resetSimulationState();
+
+      simConsole.innerHTML = "";
+      logToConsole("[0.0ms] [TRIGGER] 사용자의 페이지 요청 감지. RTB 경매 시작.", "system");
+
+      let startTime = performance.now();
+      let duration = 100;
+
+      const timerInterval = setInterval(() => {
+        let elapsed = performance.now() - startTime;
+        if (elapsed >= duration) {
+          metricTimer.innerText = "100.0ms";
+          clearInterval(timerInterval);
+        } else {
+          metricTimer.innerText = `${elapsed.toFixed(1)}ms`;
+        }
+      }, 10);
+
+
+      nodes.user.classList.add('active');
+      pulses.userToSsp.classList.add('active');
+      lines.l1.classList.add('active-blue');
+
+      setTimeout(() => {
+        logToConsole("[20.0ms] [SSP] 유저 식별 코드 매칭 완료. 미디어 인벤토리 생성.", "info");
+        nodes.ssp.classList.add('active');
+        pulses.sspToExchange.classList.add('active');
+        lines.l2.classList.add('active-lime');
+        adSlot.classList.add('bidding');
+      }, 20);
+
+      setTimeout(() => {
+        logToConsole("[50.0ms] [EXCHANGE] 글로벌 실시간 입찰 요청(Bid Request) 퍼블리싱.", "system");
+        nodes.exchange.classList.add('active');
+        metricBidders.innerText = "3";
+        metricBidders.style.color = "#ff3b30";
+
+        const currentTarget = profiles[currentProfileIndex].target;
+        if (currentTarget === "스포츠웨어") {
+          pulses.exchangeToDsp1.classList.add('active');
+          lines.dsp1.className = "connection-line active-white";
+
+          pulses.exchangeToDsp2.classList.remove('active');
+          pulses.exchangeToDsp3.classList.remove('active');
+          lines.dsp2.className = "connection-line";
+          lines.dsp3.className = "connection-line";
+        } else if (currentTarget === "글로벌 테크") {
+          pulses.exchangeToDsp2.classList.add('active');
+          lines.dsp2.className = "connection-line active-blue-theme";
+
+          pulses.exchangeToDsp1.classList.remove('active');
+          pulses.exchangeToDsp3.classList.remove('active');
+          lines.dsp1.className = "connection-line";
+          lines.dsp3.className = "connection-line";
+        } else if (currentTarget === "식음료") {
+          pulses.exchangeToDsp3.classList.add('active');
+          lines.dsp3.className = "connection-line active-green-theme";
+
+          pulses.exchangeToDsp1.classList.remove('active');
+          pulses.exchangeToDsp2.classList.remove('active');
+          lines.dsp1.className = "connection-line";
+          lines.dsp2.className = "connection-line";
+        }
+      }, 50);
+
+      setTimeout(() => {
+        logToConsole("[75.0ms] [DSP 1] 스포츠웨어 브랜드 -> 입찰가 $4.65 계산 제출", "bid");
+        logToConsole("[82.0ms] [DSP 2] 글로벌 IT 테크 -> 입찰가 $5.80 계산 제출", "bid");
+        logToConsole("[88.0ms] [DSP 3] 식음료 가공 유통 -> 입찰가 $3.15 계산 제출", "bid");
+
+        nodes.dsp1.className = "net-node active theme-white";
+        nodes.dsp2.className = "net-node active theme-blue";
+        nodes.dsp3.className = "net-node active theme-green";
+      }, 75);
+
+      setTimeout(() => {
+        const currentTarget = profiles[currentProfileIndex].target;
+        const winnerData = adResults[currentTarget];
+
+        logToConsole(`[100.0ms] [WINNER] 최고가 입찰 달성! 최종 낙찰사: ${winnerData.brand} (${winnerData.price})`, "win");
+
+        if (currentTarget === "스포츠웨어") {
+          nodes.dsp1.className = "net-node active theme-white";
+          lines.dsp1.className = "connection-line active-white";
+          pulses.exchangeToDsp1.classList.add('active');
+
+          nodes.dsp2.className = "net-node";
+          nodes.dsp3.className = "net-node";
+          lines.dsp2.className = "connection-line";
+          lines.dsp3.className = "connection-line";
+          pulses.exchangeToDsp2.classList.remove('active');
+          pulses.exchangeToDsp3.classList.remove('active');
+        } else if (currentTarget === "글로벌 테크") {
+          nodes.dsp2.className = "net-node active theme-blue";
+          lines.dsp2.className = "connection-line active-blue-theme";
+          pulses.exchangeToDsp2.classList.add('active');
+
+          nodes.dsp1.className = "net-node";
+          nodes.dsp3.className = "net-node";
+          lines.dsp1.className = "connection-line";
+          lines.dsp3.className = "connection-line";
+          pulses.exchangeToDsp1.classList.remove('active');
+          pulses.exchangeToDsp3.classList.remove('active');
+        } else if (currentTarget === "식음료") {
+          nodes.dsp3.className = "net-node active theme-green";
+          lines.dsp3.className = "connection-line active-green-theme";
+          pulses.exchangeToDsp3.classList.add('active');
+
+          nodes.dsp1.className = "net-node";
+          nodes.dsp2.className = "net-node";
+          lines.dsp1.className = "connection-line";
+          lines.dsp2.className = "connection-line";
+          pulses.exchangeToDsp1.classList.remove('active');
+          pulses.exchangeToDsp2.classList.remove('active');
+        }
+
+        metricWinnerPrice.innerText = winnerData.price;
+
+        adImg.src = winnerData.img;
+        adImg.classList.add('show');
+        adWinnerTag.innerText = `WINNER: ${winnerData.brand} (${winnerData.price})`;
+        adWinnerTag.classList.add('show');
+        adSlot.className = "ad-slot-wrapper active";
+        adPlaceholder.style.opacity = "0";
+
+        btnStartSim.disabled = false;
+        btnRandomProfile.disabled = false;
+      }, 100);
+    });
+
+
+    window.addEventListener('load', () => {
+      lucide.createIcons();
+    });
+
+
+    const cursor = document.getElementById('custom-cursor');
+    const cursorDot = cursor ? cursor.querySelector('.cursor-dot') : null;
+    const cursorRing = cursor ? cursor.querySelector('.cursor-ring') : null;
+
+    let mouseX = 0, mouseY = 0;
+    let dotX = 0, dotY = 0;
+    let ringX = 0, ringY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animateCursor() {
+      dotX += (mouseX - dotX) * 1.0;
+      dotY += (mouseY - dotY) * 1.0;
+      ringX += (mouseX - ringX) * 0.2;
+      ringY += (mouseY - ringY) * 0.2;
+
+      if (cursorDot) {
+        cursorDot.style.left = `${dotX}px`;
+        cursorDot.style.top = `${dotY}px`;
+      }
+      if (cursorRing) {
+        cursorRing.style.left = `${ringX}px`;
+        cursorRing.style.top = `${ringY}px`;
+      }
+
+      requestAnimationFrame(animateCursor);
+    }
+    requestAnimationFrame(animateCursor);
+
+
+    document.addEventListener('mouseover', (e) => {
+      if (e.target && e.target.closest && e.target.closest('a, button, .rtb-card, input, select, textarea, .cta-btn-small, .sim-btn, .back-btn')) {
+        if (cursor) cursor.classList.add('hover');
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      if (e.target && e.target.closest && e.target.closest('a, button, .rtb-card, input, select, textarea, .cta-btn-small, .sim-btn, .back-btn')) {
+        if (cursor) cursor.classList.remove('hover');
+      }
+    });
+  </script>
+</body>
+
+</html>
